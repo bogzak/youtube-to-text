@@ -3,11 +3,15 @@ import logging
 from pytubefix import YouTube
 from pydub import AudioSegment
 from openai import OpenAI
+from dotenv import dotenv_values
 
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+
+# Загрузка конфигурации из файла .env
+config = dotenv_values(".env")
 
 def read_file(file_path) -> str:
     with open(file_path, "r", encoding="utf-8") as file:
@@ -95,7 +99,7 @@ def download_youtube_audio(url, output_path) -> str:
 
 
 if __name__ == "__main__":
-    api_key = read_file("files/api_key.txt")
+    api_key = config["OPENAI_API_KEY"]
     prompt_param = read_file("files/prompt_preprocess.txt")
     # prompt_postprocess = read_file("files/prompt_postprocess.txt")
     video_urls = read_file_lines("files/video_urls.txt")
