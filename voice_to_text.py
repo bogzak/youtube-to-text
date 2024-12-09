@@ -58,7 +58,8 @@ def transcribe_audio(client, audio_path, model="whisper-1", prompt="") -> str:
     return transcription
 
 
-def post_process_text(client, text, gpt_model="gpt-4o", prompt_postprocess="") -> str:
+def post_process_text(api_key, text, gpt_model="", prompt_postprocess="") -> str:
+    client = initialize_client(api_key)
     response = client.chat.completions.create(
         model=gpt_model,
         messages=[
@@ -69,7 +70,7 @@ def post_process_text(client, text, gpt_model="gpt-4o", prompt_postprocess="") -
     return response.choices[0].message.content
 
 
-def process_audio_file(api_key, file_path, prompt="", prompt_postprocess="") -> str:
+def process_audio_file(api_key, file_path, prompt="") -> str:
     client = initialize_client(api_key)
 
     if get_file_size(file_path) <= 25 * 1024 * 1024:  # 25 MB
@@ -100,6 +101,7 @@ def download_youtube_audio(url, output_path) -> str:
 
 if __name__ == "__main__":
     api_key = config["OPENAI_API_KEY"]
+    gpt_model = config["GPT_MODEL"]
     prompt_param = read_file("files/prompt_preprocess.txt")
     prompt_postprocess = read_file("files/prompt_postprocess.txt")
     video_urls = read_file_lines("files/video_urls.txt")
@@ -110,7 +112,7 @@ if __name__ == "__main__":
             logging.info(f"Processing audio file: {audio_path}")           
             transcription = process_audio_file(api_key, audio_path, prompt=prompt_param)          
             if prompt_postprocess:
-                transcription = post_process_text(api_key, transcription, prompt_postprocess=prompt_postprocess)         
+                transcription = post_process_text(api_key, transcription, gpt_model=gpt_model, prompt_postprocess=prompt_postprocess)         
             output_file_path = f"transcriptions/transcription_{i+1}.txt"
             save_transcription_to_file(transcription, output_file_path)
             logging.info(f"Transcription saved to {output_file_path}")      
