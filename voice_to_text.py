@@ -1,9 +1,18 @@
 import os
 import logging
+
 from pytubefix import YouTube
 from pydub import AudioSegment
-from openai import OpenAI
+
 from dotenv import dotenv_values
+
+from utils import (
+    initialize_client,
+    get_file_size,
+    read_file,
+    read_file_lines,
+    save_transcription_to_file
+)
 
 
 # Настройка логирования
@@ -12,23 +21,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # Загрузка конфигурации из файла .env
 config = dotenv_values(".env")
-
-def read_file(file_path) -> str:
-    with open(file_path, "r", encoding="utf-8") as file:
-        return file.read().strip()
-
-
-def read_file_lines(file_path) -> list[str]:
-    with open(file_path, "r", encoding="utf-8") as file:
-        return [line.strip() for line in file if line.strip()]
-
-
-def initialize_client(api_key) -> OpenAI:
-    return OpenAI(api_key=api_key)
-
-
-def get_file_size(file_path) -> int:
-    return os.path.getsize(file_path)
 
 
 def split_audio(file_path, max_file_size=25 * 1024 * 1024) -> list:
@@ -82,11 +74,6 @@ def process_audio_file(api_key, file_path, prompt="") -> str:
         transcribe_audio(client, chunk, prompt=prompt) for chunk in chunks
     )
     return full_transcription
-
-
-def save_transcription_to_file(text, output_file_path):
-    with open(output_file_path, "w", encoding="utf-8") as file:
-        file.write(text)
 
 
 def download_youtube_audio(url, output_path) -> str:
