@@ -1,0 +1,4 @@
+pytubefix
+pydub
+python-dotenv
+openai
