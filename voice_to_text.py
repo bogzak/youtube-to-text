@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 config = dotenv_values(".env")
 
 
-def split_audio(file_path, max_file_size=25 * 1024 * 1024) -> list:
+def split_audio(file_path: str, max_file_size: int = 25 * 1024 * 1024) -> list:
     audio = AudioSegment.from_file(file_path)
     file_size = len(audio)
     if file_size <= max_file_size:
@@ -39,7 +39,7 @@ def split_audio(file_path, max_file_size=25 * 1024 * 1024) -> list:
     return chunks
 
 
-def transcribe_audio(client, audio_path, model="whisper-1", prompt="") -> str:
+def transcribe_audio(client, audio_path: str, model="whisper-1", prompt="") -> str:
     with open(audio_path, "rb") as audio_file:
         transcription = client.audio.transcriptions.create(
             model=model,
@@ -50,7 +50,7 @@ def transcribe_audio(client, audio_path, model="whisper-1", prompt="") -> str:
     return transcription
 
 
-def post_process_text(api_key, text, gpt_model="", prompt_postprocess="") -> str:
+def post_process_text(api_key: str, text: str, gpt_model="", prompt_postprocess="") -> str:
     client = initialize_client(api_key)
     response = client.chat.completions.create(
         model=gpt_model,
@@ -62,7 +62,7 @@ def post_process_text(api_key, text, gpt_model="", prompt_postprocess="") -> str
     return response.choices[0].message.content
 
 
-def process_audio_file(api_key, file_path, prompt="") -> str:
+def process_audio_file(api_key: str, file_path: str, prompt="") -> str:
     client = initialize_client(api_key)
 
     if get_file_size(file_path) <= 25 * 1024 * 1024:  # 25 MB
@@ -76,7 +76,7 @@ def process_audio_file(api_key, file_path, prompt="") -> str:
     return full_transcription
 
 
-def download_youtube_audio(url, output_path) -> str:
+def download_youtube_audio(url: str, output_path: str) -> str:
     yt = YouTube(url, "IOS")
     stream = yt.streams.filter(only_audio=True).first()
     audio_file_path = os.path.join(output_path, f"audio/audio_{yt.video_id}.mp3")
