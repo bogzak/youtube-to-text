@@ -21,29 +21,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 config = dotenv_values(".env")
 
 
-def transcribe_audio(client, audio_path: str, model="whisper-1", prompt="") -> str:
-    with open(audio_path, "rb") as audio_file:
-        transcription = client.audio.transcriptions.create(
-            model=model,
-            file=audio_file,
-            response_format="text",
-            prompt=prompt
-        )
-    return transcription
-
-
-def post_process_text(api_key: str, text: str, gpt_model="", prompt_postprocess="") -> str:
-    client = initialize_client(api_key)
-    response = client.chat.completions.create(
-        model=gpt_model,
-        messages=[
-            {"role": "system", "content": prompt_postprocess},
-            {"role": "user", "content": text}
-        ]
-    )
-    return response.choices[0].message.content
-
-
 def process_audio_file(api_key: str, file_path: str, prompt="") -> str:
     client = initialize_client(api_key)
 
