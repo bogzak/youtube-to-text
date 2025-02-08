@@ -5,6 +5,7 @@ from pytubefix import YouTube
 from pydub import AudioSegment
 
 from dotenv import dotenv_values
+from youtube_downloader import YoutubeDownloader
 
 from utils import (
     initialize_client,
@@ -76,16 +77,6 @@ def process_audio_file(api_key: str, file_path: str, prompt="") -> str:
     return full_transcription
 
 
-def download_youtube_audio(url: str, output_path: str) -> str:
-    yt = YouTube(url, "IOS")
-    stream = yt.streams.filter(only_audio=True).first()
-    audio_file_path = os.path.join(output_path, f"audio/audio_{yt.video_id}.mp3")
-    logging.info(f"Start downloading audio from: {url}")
-    stream.download(output_path=output_path, filename=f"audio/audio_{yt.video_id}.mp3")
-    logging.info(f"Audio downloaded and saved to: {audio_file_path}")
-    return audio_file_path
-
-
 if __name__ == "__main__":
     api_key = config["OPENAI_API_KEY"]
     gpt_model = config["GPT_MODEL"]
@@ -95,7 +86,8 @@ if __name__ == "__main__":
 
     for i, url in enumerate(video_urls):
         try:
-            audio_path = download_youtube_audio(url, ".")
+            youtube_downloader = YoutubeDownloader(url=url, output_path=".")
+            audio_path = youtube_downloader.download_youtube_audio()
             logging.info(f"Processing audio file: {audio_path}")           
             transcription = process_audio_file(api_key, audio_path, prompt=prompt_param)          
             if prompt_postprocess:
