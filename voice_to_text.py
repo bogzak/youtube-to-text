@@ -1,11 +1,8 @@
-import os
 import logging
-
-from pytubefix import YouTube
-from pydub import AudioSegment
 
 from dotenv import dotenv_values
 from youtube_downloader import YoutubeDownloader
+from audio_process import AudioProcessing
 
 from utils import (
     initialize_client,
@@ -22,22 +19,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # Загрузка конфигурации из файла .env
 config = dotenv_values(".env")
-
-
-def split_audio(file_path: str, max_file_size: int = 25 * 1024 * 1024) -> list:
-    audio = AudioSegment.from_file(file_path)
-    file_size = len(audio)
-    if file_size <= max_file_size:
-        return [file_path]
-
-    chunks = []
-    chunk_length = max_file_size * 1000 // len(audio)  # in milliseconds
-    for i in range(0, len(audio), chunk_length):
-        chunk = audio[i:i+chunk_length]
-        chunk_path = f"{file_path}_chunk_{i // chunk_length}.mp3"
-        chunk.export(chunk_path, format="mp3")
-        chunks.append(chunk_path)
-    return chunks
 
 
 def transcribe_audio(client, audio_path: str, model="whisper-1", prompt="") -> str:
@@ -69,7 +50,8 @@ def process_audio_file(api_key: str, file_path: str, prompt="") -> str:
     if get_file_size(file_path) <= 25 * 1024 * 1024:  # 25 MB
         chunks = [file_path]
     else:
-        chunks = split_audio(file_path)
+        audio_process = AudioProcessing(file_path)
+        chunks = audio_process.split_audio()
 
     full_transcription = "\n".join(
         transcribe_audio(client, chunk, prompt=prompt) for chunk in chunks

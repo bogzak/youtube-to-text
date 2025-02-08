@@ -17,6 +17,8 @@ class YoutubeDownloader:
         stream = yt.streams.filter(only_audio=True).first()
         audio_file_path = os.path.join(self.output_path, f"audio/audio_{yt.video_id}.mp3")
         logging.info(f"Start downloading audio from: {self.url}")
+
         stream.download(output_path=self.output_path, filename=f"audio/audio_{yt.video_id}.mp3")
         logging.info(f"Audio downloaded and saved to: {audio_file_path}")
+
         return audio_file_path
