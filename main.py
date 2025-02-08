@@ -26,20 +26,6 @@ PROMPT_POSTPROCESS = read_file("files/prompt_postprocess.txt")
 VIDEO_URLS = read_file_lines("files/video_urls.txt")
 
 
-def process_audio_file(file_path: str, prompt="") -> str:
-    if get_file_size(file_path) <= 25 * 1024 * 1024:  # 25 MB
-        chunks = [file_path]
-    else:
-        audio_process = AudioProcessing(file_path)
-        chunks = audio_process.split_audio()
-
-    openai_whisper = OpenAIWhisper(model="whisper-1", api_key=API_KEY)
-    full_transcription = "\n".join(
-        openai_whisper.transcribe_audio(audio_path=chunk, prompt=prompt) for chunk in chunks
-    )
-    return full_transcription
-
-
 def main():
     for i, url in enumerate(VIDEO_URLS):
         try:
