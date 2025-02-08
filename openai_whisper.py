@@ -21,7 +21,7 @@ class OpenAIWhisper:
             )
         return transcription
 
-    def post_process_text(self, text: str, gpt_model: str, prompt_postprocess: str):
+    def post_process_text(self, text: str, gpt_model: str, prompt_postprocess: str) -> str:
         client = self.initialize_client()
         response = client.chat.completions.create(
             model=gpt_model,
