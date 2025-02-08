@@ -13,11 +13,10 @@ from utils import (
 )
 
 
-# Настройка логирования
+# Logging settings
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-
-# Загрузка конфигурации из файла .env
+# Loading the configuration from the .env file
 config = dotenv_values(".env")
 
 API_KEY = config["OPENAI_API_KEY"]
@@ -47,9 +46,20 @@ def main():
             youtube_downloader = YoutubeDownloader(url=url, output_path=".")
             audio_path = youtube_downloader.download_youtube_audio()
             logging.info(f"Processing audio file: {audio_path}")
-            transcription = process_audio_file(api_key, audio_path, prompt=prompt_preprocess)
-            if prompt_postprocess:
-                transcription = post_process_text(api_key, transcription, gpt_model=gpt_model, prompt_postprocess=prompt_postprocess)
+
+            if get_file_size(audio_path) <= 25 * 1024 * 1024:  # 25 MB
+                chunks = [audio_path]
+            else:
+                audio_process = AudioProcessing(audio_path)
+                chunks = audio_process.split_audio()
+
+            openai_whisper = OpenAIWhisper(model="whisper-1", api_key=API_KEY)
+            transcription = "\n".join(
+                openai_whisper.transcribe_audio(audio_path=chunk, prompt=PROMPT_PREPROCESS) for chunk in chunks
+            )
+
+            if PROMPT_POSTPROCESS:
+                transcription = openai_whisper.post_process_text(transcription, gpt_model=GPT_MODEL, prompt_postprocess=PROMPT_POSTPROCESS)
             output_file_path = f"transcriptions/transcription_{i+1}.txt"
             save_transcription_to_file(transcription, output_file_path)
             logging.info(f"Transcription saved to {output_file_path}")
