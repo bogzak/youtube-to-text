@@ -1,22 +1,22 @@
 from openai import OpenAI
+from openai.types.audio import Transcription
 
 
 class OpenAIWhisper:
-    def __init__(self, audio_path: str, model: str, api_key: str):
-        self.audio_path = audio_path
+    def __init__(self, model: str, api_key: str):
         self.model = model
         self.api_key = api_key
 
     def initialize_client(self) -> OpenAI:
         return OpenAI(api_key=self.api_key)
 
-    def transcribe_audio(self, prompt: str, response_format: str = "text") -> str:
-        with open(self.audio_path, "rb") as audio_file:
+    def transcribe_audio(self, audio_path: str, prompt: str) -> Transcription:
+        with open(audio_path, "rb") as audio_file:
             client = self.initialize_client()
             transcription = client.audio.transcriptions.create(
                 model=self.model,
                 file=audio_file,
-                response_format=response_format,
+                response_format="text",
                 prompt=prompt
             )
         return transcription
