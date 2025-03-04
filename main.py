@@ -29,7 +29,7 @@ VIDEO_URLS = read_file_lines("files/video_urls.txt")
 def main():
     for i, url in enumerate(VIDEO_URLS):
         try:
-            youtube_downloader = YoutubeDownloader(url=url, output_path=".")
+            youtube_downloader = YoutubeDownloader(url=url, output_path="audio/")
             audio_path = youtube_downloader.download_youtube_audio()
             logging.info(f"Processing audio file: {audio_path}")
 

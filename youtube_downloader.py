@@ -13,12 +13,15 @@ class YoutubeDownloader:
         self.output_path = output_path
 
     def download_youtube_audio(self) -> str:
-        yt = YouTube(self.url, "IOS")
+        yt = YouTube(
+            self.url,
+            client='IOS'
+        )
         stream = yt.streams.filter(only_audio=True).first()
-        audio_file_path = os.path.join(self.output_path, f"audio/audio_{yt.video_id}.mp3")
+        audio_file_path = os.path.join(self.output_path, f"audio_{yt.video_id}.mp3")
         logging.info(f"Start downloading audio from: {self.url}")
 
-        stream.download(output_path=self.output_path, filename=f"audio/audio_{yt.video_id}.mp3")
+        stream.download(output_path=self.output_path, filename=f"audio_{yt.video_id}.mp3")
         logging.info(f"Audio downloaded and saved to: {audio_file_path}")
 
         return audio_file_path
